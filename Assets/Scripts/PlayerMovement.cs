@@ -40,6 +40,9 @@ public class PlayerMovement : MonoBehaviour
 	private Vector2 _lastDashDir;
 	private bool _isDashAttacking;
 
+	//Death
+	private bool isDead;
+
 	#endregion
 
 	#region INPUT PARAMETERS
@@ -58,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private Transform _frontWallCheckPoint;
 	[SerializeField] private Transform _backWallCheckPoint;
 	[SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
+	[SerializeField] private Vector2 _wallCheckSizeBack = new Vector2(0.5f, 1f);
 	#endregion
 
 	#region LAYERS & TAGS
@@ -105,7 +109,7 @@ public class PlayerMovement : MonoBehaviour
 			OnJumpUpInput();
 		}
 
-		if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
+		if (Input.GetKey(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
 		{
 			OnDashInput();
 		}
@@ -122,12 +126,12 @@ public class PlayerMovement : MonoBehaviour
 
 			//Right Wall Check
 			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
-					|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
+					|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSizeBack, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
 				LastOnWallRightTime = Data.coyoteTime;
 
 			//Right Wall Check
 			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
-				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
+				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSizeBack, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
 				LastOnWallLeftTime = Data.coyoteTime;
 
 			//Two checks needed for both left and right walls since whenever the play turns the wall checkPoints swap sides
@@ -264,7 +268,10 @@ public class PlayerMovement : MonoBehaviour
 		if (!IsDashing)
 		{
 			if (IsWallJumping)
+			{
 				Run(Data.wallJumpRunLerp);
+				//RB.velocity = new Vector2(Mathf.Max(RB.velocity.x, -Data.runMaxSpeed), RB.velocity.y); // here
+			}
 			else
 				Run(1);
 		}
@@ -302,6 +309,11 @@ public class PlayerMovement : MonoBehaviour
 	{
 		RB.gravityScale = scale;
 	}
+
+	public void setIsDead(bool t)
+    {
+		isDead = t;
+    }
 
 	private void Sleep(float duration)
 	{
@@ -408,7 +420,9 @@ public class PlayerMovement : MonoBehaviour
 		force.x *= dir; //apply force in opposite direction of wall
 
 		if (Mathf.Sign(RB.velocity.x) != Mathf.Sign(force.x))
+		{
 			force.x -= RB.velocity.x;
+		}
 
 		if (RB.velocity.y < 0) //checks whether player is falling, if so we subtract the velocity.y (counteracting force of gravity).
 			force.y -= RB.velocity.y;
@@ -543,7 +557,7 @@ public class PlayerMovement : MonoBehaviour
 		Gizmos.DrawWireCube(_groundCheckPoint.position, _groundCheckSize);
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireCube(_frontWallCheckPoint.position, _wallCheckSize);
-		Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
+		Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSizeBack);
 	}
 	#endregion
 }

@@ -16,8 +16,8 @@ TagManager:
   - Ground
   - Wall
   - Death
-  - 
-  - 
+  - Light
+  - Background
   - 
   - 
   - 
@@ -42,4 +42,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 77521637
+    locked: 0
+  - name: Light
+    uniqueID: 3942353955
+    locked: 0
+  - name: Player
+    uniqueID: 2205957377
+    locked: 0
+  - name: 
+    uniqueID: 3130660289
     locked: 0

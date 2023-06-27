@@ -4,16 +4,27 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     private Vector2 spawnPos;
-    private SpriteRenderer spriteRenderer;
+    private GameObject sprite;
+    private Vector2 lowerBound;
+    private Rigidbody2D moveObj;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spawnPos = transform.position;
+        lowerBound = new Vector2(transform.position.x, -8.7f);
+        sprite = GameObject.Find("Sprite");
+        moveObj = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody2D>();
     }
     private void Start()
     {
         spawnPos = transform.position;
     }
+    private void Update()
+    {
+        if (checkIfLower())
+            Die();
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Death"))
@@ -34,9 +45,17 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Respawn(float duration)
     {
-        spriteRenderer.enabled = false;
+        sprite.SetActive(false);
+        moveObj.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(duration);
         transform.position = spawnPos;
-        spriteRenderer.enabled = true;
+        moveObj.constraints = RigidbodyConstraints2D.FreezeRotation;
+        sprite.SetActive(true);
     }
+    public bool checkIfLower()
+    {
+        return lowerBound.y > transform.position.y;
+    }
+    public Vector2 getLower() { return lowerBound; }
+    public void setLower(float lower) {  lowerBound.y = lower; }
 }
